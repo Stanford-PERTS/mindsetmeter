@@ -1,0 +1,27 @@
+$font-color: #404040;
+$light-font-color: #999;
+
+$light-blue-color: #338EDD;
+$deep-blue-color: #042744;
+$bold-blue-color: #4678A3;
+$blue-color: #135691;
+$dark-blue-color: #33333D;
+$accent-color: #C44606;
+$violet-color: #8384F7;
+
+$error-color: #e36464;
+
+@mixin input-placeholder($color) {
+  &::-webkit-input-placeholder {
+    color: $color
+  }
+  &:-moz-placeholder {
+    color: $color;
+  }
+  &::-moz-placeholder { //for newer versions of Firefox
+    color: $color;
+  }
+  &:-ms-input-placeholder {
+    color: $color;
+  }
+}

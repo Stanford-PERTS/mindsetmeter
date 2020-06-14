@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}PERTS Growth Mindset Assessment - Results{% endblock %}
+
+{% block head %}
+<!--
+  Results
+
+  Show results to a user based on the key they arrived with.
+
+  bmh Nov 2012
+
+-->
+
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/serializeObject.min.js"></script>
+<script src="/js/mindsetMeter.js"></script>
+<script src="/js/logErrors.js"></script>
+<script src="/js/Chart.js"></script>
+<script>
+ 	mm.counts = {};			// count data by category
+ 	mm.proportions = {};	// proportion data by category
+ 	mm.graphData = {};		// data used by chart.js
+
+  	mm.counts['toi'] = {
+  		'growth': 30,
+		'intermediate': 50,
+		'fixed': 20,
+		'total': 100
+	};
+
+	mm.graphData['toi'] = [
+		{
+			value: 0,	// gets converted to %
+			color:"#33CC33",
+			title:"growth"
+		},
+		{
+			value : 0,	// gets converted to %
+			color : "#FF9933",
+			title:"intermediate"
+		},
+		{
+			value : 0,	// gets converted to %
+			color : "#CC3300",
+			title:"fixed"
+		},
+	];
+
+	mm.calculateProportions = function(){
+		for( metric in mm.counts ){
+			mm.proportions[metric] = {};
+			for( level in mm.counts[metric] ){
+				prop = mm.counts[metric][level]/mm.counts[metric]['total'];
+				if( level != "total" ){
+					mm.proportions[metric][level] = Math.round(prop * 100);
+				}
+			}
+		}
+	}
+
+	function mean(ar){
+		var i = 0, sum = 0;
+		for(i = 0; i < ar.length; i++){
+			sum += Number(ar[i]);
+		}
+		return( Math.round(sum/ar.length * 100)/100 );
+	}
+
+	function scaleMean( obj, pattern ){
+		var targetsVals = [];
+		for( key in obj ){
+			if( key.search( pattern ) == 0 ){ targetsVals.push( obj[key] ) };
+		}
+		return( mean( targetsVals ) );
+	}
+
+	function renderToiPieChart(props, graphData){
+		for( i in graphData ){
+			level = graphData[i]['title'];
+			graphData[i]['value'] = props[level];
+		}
+		var ctx = document.getElementById("gmsChart").getContext("2d");
+		var gmsChart = new Chart(ctx).Pie(graphData);
+	}
+
+	$(document).ready(function () {
+      "use strict";
+
+		// API wrappers
+	    function post_feedback_email(event) {
+	      mm.post_feedback_email(
+	        event,
+	        $('#reply_to').val(),
+	        $('#message').val(),
+	        function(result){
+	          if(result.ok){
+	            $('#email').html('<strong>Feedback sent.  Thanks!</strong>')
+	          }
+	          else {
+	            $('#email').html('Error');
+	            mm.post_error(event, "Could not send feedback, please email  directly")
+	          }
+	        }
+	      );
+	    }
+
+	    // event bindings
+	    $('#email').submit(post_feedback_email);
+
+    });
+
+
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="static-page survey-results">
+	<div class="container">
+		<div class="row" style="text-align:center;">
+			<div class="col-sm-12">
+				<h2>This is a sample report</h2>
+				<h4>Make one for your own students in 10 minutes.
+					<a href="/share/dlmooc#start">Get started</a>.
+				</h4>
+			</div>
+		</div>
+	</div>
+	<hr>
+
+	<div class="container">
+		<div class="row results-summary">
+
+			<div class="col-sm-5 col-sm-offset-1"  style="text-align: center;">
+				<canvas id="gmsChart" width="300" height="300"></canvas>
+			</div>
+
+			<div class="col-sm-5">
+				<h3><span class="chart growth">
+					<span id='growth_pct'></span>%
+					</span>
+					of the surveyed students have a growth mindset.
+				</h3>
+				<br>
+				<h4>
+					<a href="#learn">Help more students develop a growth mindset</a>
+				</h4>
+				<br><br>
+				<a class="action-button" href="/share/toi">← Reset Survey</a><br>
+			</div>
+
+		</div>
+	</div>
+
+	<hr>
+
+	<div class="container">
+		<div class="row">
+			<div class="static-page-section">
+
+				<div class="col-sm-8">
+					<h2>About Growth Mindset</h2>
+				</div>
+
+				<div class="col-sm-8">
+					<p>
+						People with a &quot;fixed mindset&quot; think that intelligence is fixed&mdash;that they have a certain amount of it which cannot really be changed. Other people have a growth mindset. They think intelligence is “malleable”&mdash;that it can be developed and increased through hard work. Students who have a &quot;growth mindset&quot; tend to do better in school, especially when they encounter academic difficulties.
+					</p>
+				</div>
+
+				<div class="col-sm-4 col-md-3 col-md-offset-1">
+		    	<a href="http://www.perts.net"><img src="https://p3.perts.net/static/images/student_at_computer.jpg" />
+		    	</a>
+		    	<h4>
+		    		<a href="http://www.perts.net">Change Student Mindsets</a>
+		    	</h4>
+				</div>
+
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="row">
+			<div class="static-page-section">
+
+				<div class="col-sm-8">
+
+					<h2>Help your students adopt a growth mindset<a name="learn">&nbsp;</a></h2>
+
+					<p>
+						We know that students who have a growth mindset do better in school. Now what? Cultivating a growth mindset in students is actually quite tricky. Researchers and educators have spent years thinking about this, and we are still learning. Along the way, we have learned some important lessons about what works, and equally important, what does <strong>NOT</strong> work. Below, we share some of the important lessons we have learned along the way. Learn more about the important nuances of mindset interventions <a href="http://p3.perts.net/static/documents/yeager_walton_2011.pdf" target="_blank">here.</a>
+					</p>
+					<h3>What should you avoid?</h3>
+					<ul class="spaced_bullets">
+						<li>Do not just tell students to have a growth mindset</li>
+							<ul>
+								<p>
+									Students can have a negative reaction to being told how to think. Instead of telling students to "have a growth mindset," explain to them the science behind how intelligence works &mdash; that the brain can get stronger and smarter with new learning.
+								</p>
+							</ul>
+						<li>Do not exhort students to "just try harder"</li>
+							<ul>
+								<p>
+									Most students have heard "just try harder," but a growth mindset isn't just about trying harder. Students need to understand <em>why</em> they should put in effort and <em>how</em> to deploy that effort. Sometimes a better strategy is more useful than sheer effort.
+								</p>
+							</ul>
+					</ul>
+					<br><br>
+					<h3>What should you do?</h3>
+					<ul class="spaced_bullets">
+						<li>Celebrate mistakes and productive struggle</li>
+							<ul>
+								<p>
+									Many students fear making mistakes. They think mistakes mean they are not smart. But research shows that conceptual mistakes are an important part of learning. Having to work through a difficult problem and try different strategies is the best way to get better at a subject. Tell your students that you like mistakes and show them how to learn from them.
+								</p>
+							</ul>
+						<li>Praise the process, not the person</li>
+							<ul>
+								<p>
+									Our intuition is often to praise students for being smart. This sends the wrong message. When students later encounter a setback they conclude: "If my past success made me smart, my current struggle makes me dumb." Instead, praise students when they work hard to accomplish a difficult task. This implies that you value hard work and that hard work is the cause of success. <a href="https://app.box.com/shared/static/4y3evbxup5ko1wn2c40w.pdf" target="_blank">Read the research</a>.
+								</p>
+							</ul>
+						<li>Give growth mindset encouragement</li>
+							<ul>
+								<p>
+									When students are struggling, remind them that challenges are the best way to grow their brains. Help them picture their brains getting stronger as they work through a difficult problem.
+								</p>
+							</ul>
+						<li>Give "open" tasks</li>
+							<ul>
+								<p>
+									Give tasks with multiple steps and multiple right answers. This encourages students to learn concepts instead of memorize lists of facts or rules.
+								</p>
+							</ul>
+						<li>Assess learning, not just performance</li>
+							<ul>
+								<p>
+									Are students engaged in the learning process?
+									<br>For example, in group work:
+									<br><br>Are students leaning in?
+									<br>Is everyone participating?
+									<br>Are students asking each other questions?
+								</p>
+							</ul>
+					</ul>
+				</div>
+
+				<div class="col-sm-4 col-md-3 col-md-offset-1">
+
+					{% include '_resources.html' %}
+
+				</div>
+
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="static-page-section">
+			<div class="row">
+				<div class="col-sm-8">
+
+					<h2>Sponsors</h2>
+			    <p>
+			    	Free use of the Mindset Meter is generously supported by the William and Flora Hewlett Foundation and the Raikes Foundation.
+			    </p>
+					<br><br>
+					<a href="//raikesfoundation.org/"><img src="/static/raikes_logo.png" /></a>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<a href="//www.hewlett.org/"><img src="/static/hewlett.png" /></a>
+
+				</div>
+
+			</div>
+		</div>
+
+		<hr>
+
+		<div class="static-page-section">
+			<div class="row">
+				<div class="col-sm-8">
+
+					<h2>Questions, suggestions, requests? </h2>
+					<p>
+						The Mindset Meter is still a relatively new product. We would love to hear how to improve it to better serve educators and students. Send questions, suggestions, and requests to us with the form below.
+					</p>
+
+					<div class="email_feedback_form">
+						<form id="email">
+						  <input id="reply_to" placeholder="Your email address here (optional)" >
+							<textarea id="message" placeholder="Your thoughts"></textarea>
+						  <a onmousedown="$('#email').submit();" type='submit' class='action-button' >Send your feedback</a>
+						</form>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<style type='text/css'>
+	.chart {
+		color:#33CC33;
+		font-size: 1.8em;
+	}
+
+	.legend {
+	    width: 100%;
+	}
+
+	.legend .title {
+	    display: block;
+	    margin: 0.5em;
+	    border-style: solid;
+	    border-width: 0 0 0 1em;
+	    padding: 0 0.3em;
+	}
+</style>
+
+<script type='text/javascript'>
+
+	mm.calculateProportions();
+	renderToiPieChart(mm.proportions['toi'], mm.graphData['toi']);
+	$('#growth_pct').html(mm.proportions['toi']['growth']);
+
+</script>
+
+
+
+ <!-- Google Code for Looked at results Conversion Page -->
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = 1008646530;
+var google_conversion_language = "en";
+var google_conversion_format = "3";
+var google_conversion_color = "ffffff";
+var google_conversion_label = "7QA2COaUqAQQgvP64AM";
+var google_conversion_value = 5;
+/* ]]> */
+</script>
+<script type="text/javascript" src="http://www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+<div style="display:inline;">
+<img height="1" width="1" style="border-style:none;" alt="" src="http://www.googleadservices.com/pagead/conversion/1008646530/?value=5&amp;label=7QA2COaUqAQQgvP64AM&amp;guid=ON&amp;script=0"/>
+</div>
+</noscript>
+
+
+{% endblock %}
+

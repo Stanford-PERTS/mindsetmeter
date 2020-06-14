@@ -1,0 +1,370 @@
+{#
+
+MM2 Results
+
+Show results to a user based on the keys they arrived with.
+
+bmh Nov 2012
+cam Nov 2015
+
+TODO:
+    import a good tools library, like underscore or lodash, and replace
+    Ben's for loops with map loops
+
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Growth Mindset Report{% endblock %}
+
+{% block head %}
+
+<link rel="stylesheet" href="/css/results.css">
+
+
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/serializeObject.min.js"></script>
+<script src="/js/mindsetMeter.js"></script>
+<script src="/js/logErrors.js"></script>
+<!-- @todo: replace with a d3-based pie chart -->
+<script src="/js/Chart.js"></script>
+<script src="/js/d3.min.js"></script>
+<script src="/js/d3.sankey.js"></script>
+<script src="/js/results.js"></script>
+
+<script type="text/javascript">
+
+// Most of the logic for processing answers is in results.js and mindsetmeter.js.
+// But some of it needs to be configured on a per-assessment basis:
+//
+// * Settings related to rendered charts, like colors and titles.
+// * DOM interaction, like ids and classes.
+// * Metric summary, including relevant question names and
+//   binning/histogramming scores.
+
+(function () {
+    'use strict';
+    /* global mm, mmReport, JSON */
+
+    var metric = 'mm2-demo',
+        answers = JSON.parse('{{ answers }}'),
+        debug = false;
+
+    // Both templates are copied into each phase context.
+    // N.B. the value of each 'title' property in the graphData must match a
+    // property of the counts.
+    var graphDataTemplate = [
+        {
+            value: 0,  // gets converted to %
+            color: '#33CC33',
+            title: 'growth'
+        },
+        {
+            value: 0,  // gets converted to %
+            color: '#FF9933',
+            title: 'intermediate'
+        },
+        {
+            value: 0,  // gets converted to %
+            color: '#CC3300',
+            title: 'fixed'
+        }
+    ];
+    var countsTemplate = {
+        growth: 0,
+        intermediate: 0,
+        fixed: 0,
+        total: 0
+    };
+    mmReport.setTemplates(graphDataTemplate, countsTemplate);
+
+    // Defines how to tally up scores.
+    // This version currently calculates three levels of theory of intelligence
+    // hence "toi_level".
+    mmReport.setMetricCalculator(function (answerSet, metric, phaseContext) {
+        var p = phaseContext,
+            sm = mm.scaleMean(answerSet, "toi.");
+        answerSet.toi_mean = sm;
+
+        if (sm > 0) { answerSet.toi_level = "growth"; }
+        if (sm > 2) { answerSet.toi_level = "intermediate"; }
+        if (sm > 4) { answerSet.toi_level = "fixed"; }
+
+        if (isNaN(sm)) {
+            answerSet.toi_level = "";
+        } else {
+            // Structure of p.counts based on countsTemplate set above.
+            p.counts[metric][answerSet.toi_level] += 1;
+            p.counts[metric].total += 1;
+        }
+    });
+
+    mmReport.setPhaseRenderer(function (metric, phaseContext) {
+        var chartId = 'gmsChart' + phaseContext.phaseOrdinal;
+
+        mmReport.renderPieChart(phaseContext.proportions[metric],
+                                phaseContext.graphData[metric],
+                                chartId);
+
+        // Fill in the percent of students that have a growth mindset.
+        var pptns = phaseContext.proportions[metric];
+        var phasePrefix = '.phase' + phaseContext.phaseOrdinal;
+        $(phasePrefix + ' .growth_pct').html(pptns.growth);
+        $(phasePrefix + ' .intermediate_pct').html(pptns.intermediate);
+        $(phasePrefix + ' .fixed_pct').html(pptns.fixed);
+        $(phasePrefix + ' .number_of_students').html(
+            phaseContext.answers.length);
+    });
+
+    $(document).ready(function () {
+        // event bindings
+        $('#email').submit(mm.post_feedback_email_wrapper);
+
+        // Customize the title if the option is set.
+        var params = mm.query_string_to_object();
+        if (params.for) {
+            $('#subtitle').html(params.for).show();
+        }
+
+        var answersByPhase = mmReport.renderAllPhases(metric, answers);
+        answersByPhase.forEach(function (phaseAnswers, phaseOrdinal) {
+            if (phaseAnswers.length > 0) {
+                $('.phase' + phaseOrdinal + ' .report').show();
+                $('.phase' + phaseOrdinal + ' .no_results').hide();
+            }
+        });
+        $('#results').show();
+    });
+}());
+
+</script>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="static-page survey-results">
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Growth Mindset Assessment Report</h1>
+                <h2 id="subtitle"></h2>
+            </div>
+        </div>
+
+        <div class="row" id="results" style="display: none">
+            {% for phase in range(2) %}
+
+            <div class="col-sm-6 results-summary phase{{loop.index}}">
+                <h2>Assessment {{loop.index}}</h2>
+                <div class="report" style="display: none">
+                    <div style="text-align: center;">
+                        <canvas id="gmsChart{{loop.index}}" width="300"
+                                height="300"></canvas>
+                    </div>
+                    <div style="padding: 15px">
+                        <h3><span class="chart growth">
+                                <span class="growth_pct"></span>%
+                            </span>
+                            of
+                            <span class="number_of_students"></span>
+                            participants have a growth mindset.
+                        </h3>
+                        <p>
+                            <span class="intermediate">
+                                <span class="intermediate_pct"></span>%
+                            </span>
+                            have an intermediate mindset.
+                        </p>
+                        <p>
+                            <span class="fixed">
+                                <span class="fixed_pct"></span>%
+                            </span>
+                            have an fixed mindset.
+                        </p>
+                    </div>
+                </div>
+                <div class="no_results">
+                    <h2>No responses... yet</h2>
+                </div>
+            </div>
+
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    <hr>
+
+    <div class="container">
+        <div class="row">
+            <div class="static-page-section">
+
+                <div class="col-sm-8">
+                    <h2>About Growth Mindset</h2>
+                </div>
+
+                <div class="col-sm-8">
+                    <p>
+                        People with a &quot;fixed mindset&quot; think that intelligence is fixed&mdash;that they have a certain amount of it which cannot really be changed. Other people have a growth mindset. They think intelligence is “malleable”&mdash;that it can be developed and increased through hard work. Students who have a &quot;growth mindset&quot; tend to do better in school, especially when they encounter academic difficulties.
+                    </p>
+                </div>
+
+                <div class="col-sm-4 col-md-3 col-md-offset-1">
+                <a href="http://www.perts.net"><img src="https://p3.perts.net/static/images/student_at_computer.jpg" />
+                </a>
+                <h4>
+                    <a href="http://www.perts.net">Change Student Mindsets</a>
+                </h4>
+                </div>
+
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="static-page-section">
+
+                <div class="col-sm-8">
+
+                    <h2>Help your students adopt a growth mindset<a name="learn">&nbsp;</a></h2>
+
+                    <p>
+                        We know that students who have a growth mindset do better in school. Now what? Cultivating a growth mindset in students is actually quite tricky. Researchers and educators have spent years thinking about this, and we are still learning. Along the way, we have learned some important lessons about what works, and equally important, what does <strong>NOT</strong> work. Below, we share some of the important lessons we have learned along the way. Learn more about the important nuances of mindset interventions <a href="http://p3.perts.net/static/documents/yeager_walton_2011.pdf" target="_blank">here.</a>
+                    </p>
+                    <h3>What should you avoid?</h3>
+                    <ul class="spaced_bullets">
+                        <li>Do not just tell students to have a growth mindset</li>
+                            <ul>
+                                <p>
+                                    Students can have a negative reaction to being told how to think. Instead of telling students to "have a growth mindset," explain to them the science behind how intelligence works &mdash; that the brain can get stronger and smarter with new learning.
+                                </p>
+                            </ul>
+                        <li>Do not exhort students to "just try harder"</li>
+                            <ul>
+                                <p>
+                                    Most students have heard "just try harder," but a growth mindset isn't just about trying harder. Students need to understand <em>why</em> they should put in effort and <em>how</em> to deploy that effort. Sometimes a better strategy is more useful than sheer effort.
+                                </p>
+                            </ul>
+                    </ul>
+                    <br><br>
+                    <h3>What should you do?</h3>
+                    <ul class="spaced_bullets">
+                        <li>Celebrate mistakes and productive struggle</li>
+                            <ul>
+                                <p>
+                                    Many students fear making mistakes. They think mistakes mean they are not smart. But research shows that conceptual mistakes are an important part of learning. Having to work through a difficult problem and try different strategies is the best way to get better at a subject. Tell your students that you like mistakes and show them how to learn from them.
+                                </p>
+                            </ul>
+                        <li>Praise the process, not the person</li>
+                            <ul>
+                                <p>
+                                    Our intuition is often to praise students for being smart. This sends the wrong message. When students later encounter a setback they conclude: "If my past success made me smart, my current struggle makes me dumb." Instead, praise students when they work hard to accomplish a difficult task. This implies that you value hard work and that hard work is the cause of success. <a href="https://app.box.com/shared/static/4y3evbxup5ko1wn2c40w.pdf" target="_blank">Read the research</a>.
+                                </p>
+                            </ul>
+                        <li>Give growth mindset encouragement</li>
+                            <ul>
+                                <p>
+                                    When students are struggling, remind them that challenges are the best way to grow their brains. Help them picture their brains getting stronger as they work through a difficult problem.
+                                </p>
+                            </ul>
+                        <li>Give "open" tasks</li>
+                            <ul>
+                                <p>
+                                    Give tasks with multiple steps and multiple right answers. This encourages students to learn concepts instead of memorize lists of facts or rules.
+                                </p>
+                            </ul>
+                        <li>Assess learning, not just performance</li>
+                            <ul>
+                                <p>
+                                    Are students engaged in the learning process?
+                                    <br>For example, in group work:
+                                    <br><br>Are students leaning in?
+                                    <br>Is everyone participating?
+                                    <br>Are students asking each other questions?
+                                </p>
+                            </ul>
+                    </ul>
+                </div>
+
+                <div class="col-sm-4 col-md-3 col-md-offset-1">
+
+                    {% include '_resources.html' %}
+
+                </div>
+
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="static-page-section">
+            <div class="row">
+                <div class="col-sm-8">
+
+                    <h2>Sponsors</h2>
+                <p>
+                    Free use of the Mindset Meter is generously supported by the William and Flora Hewlett Foundation and the Raikes Foundation.
+                </p>
+                    <br><br>
+                    <a href="//raikesfoundation.org/"><img src="/static/raikes_logo.png" /></a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="//www.hewlett.org/"><img src="/static/hewlett.png" /></a>
+
+                </div>
+
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="static-page-section">
+            <div class="row">
+                <div class="col-sm-8">
+
+                    <h2>Questions, suggestions, requests? </h2>
+                    <p>
+                        The Mindset Meter is still a relatively new product. We would love to hear how to improve it to better serve educators and students. Send questions, suggestions, and requests to us with the form below.
+                    </p>
+
+                    <div class="email_feedback_form">
+                        <form id="email">
+                          <input id="reply_to" placeholder="Your email address here (optional)" >
+                            <textarea id="message" placeholder="Your thoughts"></textarea>
+                          <a onmousedown="$('#email').submit();" type='submit' class='action-button' >Send your feedback</a>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Google Code for Looked at results Conversion Page -->
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = 1008646530;
+var google_conversion_language = "en";
+var google_conversion_format = "3";
+var google_conversion_color = "ffffff";
+var google_conversion_label = "7QA2COaUqAQQgvP64AM";
+var google_conversion_value = 5;
+/* ]]> */
+</script>
+<script type="text/javascript" src="http://www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+<div style="display:inline;">
+<img height="1" width="1" style="border-style:none;" alt="" src="http://www.googleadservices.com/pagead/conversion/1008646530/?value=5&amp;label=7QA2COaUqAQQgvP64AM&amp;guid=ON&amp;script=0"/>
+</div>
+</noscript>
+
+{% endblock %}

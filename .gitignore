@@ -1,0 +1,16 @@
+# Mac files
+.DS_store
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# Compiled Python
+*.pyc
+
+.sass-cache
+.sass-cache/*
+**/.sass-cache/*
+**/.sass-cache
+
+css/app.css

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}PERTS Mindset Meter{% endblock %}
+
+{% block content %}
+
+<div class="static-page about-page">
+
+  <div class="page-header">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-9">
+          <h1>Mindset Meter</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container container--main">
+    <div class="row">
+      <div class="col-sm-9">
+        <p>
+        	A tool for quickly assessing student mindsets, created by PERTS at Stanford University.
+        </p>
+
+        <div class="static-page-section" id="about">
+        	<h2>Select a mindset assessment</h2>
+        	<h3>Growth Mindset Assessment</h3>
+					<p>A 5-minute assessment of growth mindset.</p>
+					<a href="/share/toi" class="action-button--assessment">View Assessment</a>
+					<h3>Deeper Learning Mindset Assessment</h3>
+					<p>A 10-minute assessment of four different academic mindsets, made for participants of the DLMOOC.</p>
+					<a href="/share/dlmooc" class="action-button--assessment">View Assessment</a>
+        </div>
+
+        <div class="static-page-section" id="sponsors">
+        	<h2>Sponsors</h2>
+        	<p>
+        		Free use of the Mindset Meter is generously supported by the William and Flora
+		    		Hewlett Foundation and the Raikes Foundation.
+        	</p>
+        	<a href="//raikesfoundation.org/"><img src="/static/raikes_logo.png" /></a>
+        	&nbsp;&nbsp;&nbsp;&nbsp;
+					<a href="//www.hewlett.org/"><img src="/static/hewlett.png" /></a>
+        </div>
+
+        <div class="static-page-section" id="questions">
+        	<h2>Questions, suggestions, requests?</h2>
+        	<p>
+        		This is just an early prototype of Mindset Meter. We would love to hear how to improve it to better serve educators and students. Send questions, suggestions, and requests to <a href="</a>.
+        	</p>
+        </div>
+
+      </div><!-- .col-sm-9 -->
+    </div><!-- .row -->
+  </div><!-- .container -->
+
+</div>
+
+{% endblock %}

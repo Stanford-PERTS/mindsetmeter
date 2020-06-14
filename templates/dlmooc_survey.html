@@ -1,0 +1,495 @@
+{% extends "base.html" %}
+
+{% block title %}PERTS Academic Mindsets Assessment - Survey{% endblock %}
+
+{% block head %}
+
+	<!--
+
+	  Take
+
+	  Allows a user to take a given survey and see thier results.
+	  Public keys passed in the url will save results for others
+	  to see.
+
+	  bmh Nov 2012
+
+	  To see the survey results, paste the following code into
+	  the javascript console while the survey is open
+	  window.location = '/results/'+mm.get_keys_from_cookie('dlmooc').private_keys[0];
+
+	-->
+
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/serializeObject.min.js"></script>
+<script src="/js/mindsetMeter.js"></script>
+<script src="/js/logErrors.js"></script>
+
+<script type="text/javascript" src="/js/take-survey.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    "use strict";
+
+    // Give the user a pair of keys
+    // if they don't already have their own
+    mm.ensure_cookie_has_keys('{{name}}');
+
+    // Util
+    function get_answers() {
+      return mm.serialize('#survey');
+    }
+
+    // Api Calls
+    function post_result(event) {
+      var public_keys = mm.get_all_local_keys('{{name}}').public_keys;
+      var group = mm.get_group('{{name}}');
+      mm.post_result(event, public_keys, '{{name}}', get_answers(), function () {
+
+        // Redirect the user to the results page
+        var viewing_key = mm.get_keys_from_cookie('{{name}}').private_keys[0];
+        window.location.href = '../complete/dlmooc';
+      }, group);
+    }
+
+    // Event Bindings
+    $('#submit_button').click(post_result);
+
+  });
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- toi-grit survey -->
+
+<div class="survey-page">
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+
+				<div class="tabs">
+					<!-- The rel of each li should map to the id of its corresponding page -->
+					<ul>
+						<li rel="welcome">Welcome</li>
+						<li rel="toi">Intelligence Mindsets</li>
+						<li rel="belong_class">Belonging</li>
+						<li rel="rel">Relevance</li>
+						<li rel="seff">Self-efficacy</li>
+					</li>
+				</div>
+
+				<h1>Mindset Survey</h1>
+
+				<form id='survey'>
+					<div id="welcome" class="page">
+						<p>
+							Welcome to the PERTS Mindset Survey!
+						</p>
+						<p>
+							Please follow the prompts to complete this quick assessment.
+						</p>
+						<a class='next_button button' >Next</a>
+					</div>
+
+
+					<div id="toi" class="page">
+						<div class='instructions'>
+							<p>
+								Read each sentence below and mark the choice that shows how much you agree with it. There are no right or wrong answers.
+							</p>
+						</div>
+
+						<div class="question">
+							<p>You can learn new things, but you can't really change your basic intelligence.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="toi.1.1">Strongly<br />disagree</label></td>
+									 <td><label for="toi.1.2">Disagree</label></td>
+									 <td><label for="toi.1.3">Somewhat<br />disagree</label></td>
+									 <td><label for="toi.1.4">Somewhat<br />agree</label></td>
+									 <td><label for="toi.1.5">Agree</label></td>
+									 <td><label for="toi.1.6">Strongly<br />agree</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="toi.1" id="toi.1.1" type="radio" value="1" /></td>
+									 <td><input name="toi.1" id="toi.1.2" type="radio" value="2" /></td>
+									 <td><input name="toi.1" id="toi.1.3" type="radio" value="3" /></td>
+									 <td><input name="toi.1" id="toi.1.4" type="radio" value="4" /></td>
+									 <td><input name="toi.1" id="toi.1.5" type="radio" value="5" /></td>
+									 <td><input name="toi.1" id="toi.1.6" type="radio" value="6" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>Your intelligence is something about you that you can't change very much.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="toi.2.1">Strongly<br />disagree</label></td>
+									 <td><label for="toi.2.2">Disagree</label></td>
+									 <td><label for="toi.2.3">Somewhat<br />disagree</label></td>
+									 <td><label for="toi.2.4">Somewhat<br />agree</label></td>
+									 <td><label for="toi.2.5">Agree</label></td>
+									 <td><label for="toi.2.6">Strongly<br />agree</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="toi.2" id="toi.2.1" type="radio" value="1" /></td>
+									 <td><input name="toi.2" id="toi.2.2" type="radio" value="2" /></td>
+									 <td><input name="toi.2" id="toi.2.3" type="radio" value="3" /></td>
+									 <td><input name="toi.2" id="toi.2.4" type="radio" value="4" /></td>
+									 <td><input name="toi.2" id="toi.2.5" type="radio" value="5" /></td>
+									 <td><input name="toi.2" id="toi.2.6" type="radio" value="6" /></td>
+								 </tr>
+								 </tbody>
+							 </table>
+						</div>
+
+						<div class="question">
+							<p>You have a certain amount of intelligence and you really can't do much to change it.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="toi.3.1">Strongly<br />disagree</label></td>
+									 <td><label for="toi.3.2">Disagree</label></td>
+									 <td><label for="toi.3.3">Somewhat<br />disagree</label></td>
+									 <td><label for="toi.3.4">Somewhat<br />agree</label></td>
+									 <td><label for="toi.3.5">Agree</label></td>
+									 <td><label for="toi.3.6">Strongly<br />agree</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="toi.3" id="toi.3.1" type="radio" value="1" /></td>
+									 <td><input name="toi.3" id="toi.3.2" type="radio" value="2" /></td>
+									 <td><input name="toi.3" id="toi.3.3" type="radio" value="3" /></td>
+									 <td><input name="toi.3" id="toi.3.4" type="radio" value="4" /></td>
+									 <td><input name="toi.3" id="toi.3.5" type="radio" value="5" /></td>
+									 <td><input name="toi.3" id="toi.3.6" type="radio" value="6" /></td>
+								 </tr>
+								 </tbody>
+							 </table>
+						</div>
+						<a class='next_button button' >Next</a>
+					</div>
+
+					<div id="belong_class" class="page">
+						<div class='instructions'>
+						<p>
+						Read each sentence below and mark the choice that shows how much you agree with it. There are no right or wrong answers.</p>
+						</div>
+
+						<div class="question">
+							<p>I feel like I belong in this class.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="belong_class.1.1">Not at all<br />true</label></td>
+									 <td><label for="belong_class.1.2">A little<br />true</label></td>
+									 <td><label for="belong_class.1.3">Somewhat<br />true</label></td>
+									 <td><label for="belong_class.1.4">Mostly<br />true</label></td>
+									 <td><label for="belong_class.1.5">Completely<br />true</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="belong_class.1" id="belong_class.1.1" type="radio" value="1" /></td>
+									 <td><input name="belong_class.1" id="belong_class.1.2" type="radio" value="2" /></td>
+									 <td><input name="belong_class.1" id="belong_class.1.3" type="radio" value="3" /></td>
+									 <td><input name="belong_class.1" id="belong_class.1.4" type="radio" value="4" /></td>
+									 <td><input name="belong_class.1" id="belong_class.1.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>I feel respected in this class.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="belong_class.2.1">Not at all<br />true</label></td>
+									 <td><label for="belong_class.2.2">A little<br />true</label></td>
+									 <td><label for="belong_class.2.3">Somewhat<br />true</label></td>
+									 <td><label for="belong_class.2.4">Mostly<br />true</label></td>
+									 <td><label for="belong_class.2.5">Completely<br />true</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="belong_class.2" id="belong_class.2.1" type="radio" value="1" /></td>
+									 <td><input name="belong_class.2" id="belong_class.2.2" type="radio" value="2" /></td>
+									 <td><input name="belong_class.2" id="belong_class.2.3" type="radio" value="3" /></td>
+									 <td><input name="belong_class.2" id="belong_class.2.4" type="radio" value="4" /></td>
+									 <td><input name="belong_class.2" id="belong_class.2.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>I feel comfortable in this class.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="belong_class.3.1">Not at all<br />true</label></td>
+									 <td><label for="belong_class.3.2">A little<br />true</label></td>
+									 <td><label for="belong_class.3.3">Somewhat<br />true</label></td>
+									 <td><label for="belong_class.3.4">Mostly<br />true</label></td>
+									 <td><label for="belong_class.3.5">Completely<br />true</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="belong_class.3" id="belong_class.3.1" type="radio" value="1" /></td>
+									 <td><input name="belong_class.3" id="belong_class.3.2" type="radio" value="2" /></td>
+									 <td><input name="belong_class.3" id="belong_class.3.3" type="radio" value="3" /></td>
+									 <td><input name="belong_class.3" id="belong_class.3.4" type="radio" value="4" /></td>
+									 <td><input name="belong_class.3" id="belong_class.3.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>I feel like I can be myself in this class.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="belong_class.4.1">Not at all<br />true</label></td>
+									 <td><label for="belong_class.4.2">A little<br />true</label></td>
+									 <td><label for="belong_class.4.3">Somewhat<br />true</label></td>
+									 <td><label for="belong_class.4.4">Mostly<br />true</label></td>
+									 <td><label for="belong_class.4.5">Completely<br />true</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="belong_class.4" id="belong_class.4.1" type="radio" value="1" /></td>
+									 <td><input name="belong_class.4" id="belong_class.4.2" type="radio" value="2" /></td>
+									 <td><input name="belong_class.4" id="belong_class.4.3" type="radio" value="3" /></td>
+									 <td><input name="belong_class.4" id="belong_class.4.4" type="radio" value="4" /></td>
+									 <td><input name="belong_class.4" id="belong_class.4.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+						<a class='next_button button' >Next</a>
+					</div>
+
+					<div id="rel" class="page">
+						<div class='instructions'>
+						<p>
+							How true are the following statements in this class?</p>
+						</div>
+
+						<div class="question">
+							<p>My class gives me useful preparation for what I plan to do in life.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="rel.1.1">Not at all<br />true</label></td>
+									 <td><label for="rel.1.2">A little<br />true</label></td>
+									 <td><label for="rel.1.3">Somewhat<br />true</label></td>
+									 <td><label for="rel.1.4">Mostly<br />true</label></td>
+									 <td><label for="rel.1.5">Completely<br />true</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="rel.1" id="rel.1.1" type="radio" value="1" /></td>
+									 <td><input name="rel.1" id="rel.1.2" type="radio" value="2" /></td>
+									 <td><input name="rel.1" id="rel.1.3" type="radio" value="3" /></td>
+									 <td><input name="rel.1" id="rel.1.4" type="radio" value="4" /></td>
+									 <td><input name="rel.1" id="rel.1.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>This class teaches me valuable skills.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="rel.2.1">Not at all<br />true</label></td>
+									 <td><label for="rel.2.2">A little<br />true</label></td>
+									 <td><label for="rel.2.3">Somewhat<br />true</label></td>
+									 <td><label for="rel.2.4">Mostly<br />true</label></td>
+									 <td><label for="rel.2.5">Completely<br />true</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="rel.2" id="rel.2.1" type="radio" value="1" /></td>
+									 <td><input name="rel.2" id="rel.2.2" type="radio" value="2" /></td>
+									 <td><input name="rel.2" id="rel.2.3" type="radio" value="3" /></td>
+									 <td><input name="rel.2" id="rel.2.4" type="radio" value="4" /></td>
+									 <td><input name="rel.2" id="rel.2.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>Working hard in this class matters for success in the work force.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="rel.3.1">Not at all<br />true</label></td>
+									 <td><label for="rel.3.2">A little<br />true</label></td>
+									 <td><label for="rel.3.3">Somewhat<br />true</label></td>
+									 <td><label for="rel.3.4">Mostly<br />true</label></td>
+									 <td><label for="rel.3.5">Completely<br />true</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="rel.3" id="rel.3.1" type="radio" value="1" /></td>
+									 <td><input name="rel.3" id="rel.3.2" type="radio" value="2" /></td>
+									 <td><input name="rel.3" id="rel.3.3" type="radio" value="3" /></td>
+									 <td><input name="rel.3" id="rel.3.4" type="radio" value="4" /></td>
+									 <td><input name="rel.3" id="rel.3.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>What we learn in this class is necessary for success in the future.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="rel.4.1">Not at all<br />true</label></td>
+									 <td><label for="rel.4.2">A little<br />true</label></td>
+									 <td><label for="rel.4.3">Somewhat<br />true</label></td>
+									 <td><label for="rel.4.4">Mostly<br />true</label></td>
+									 <td><label for="rel.4.5">Completely<br />true</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="rel.4" id="rel.4.1" type="radio" value="1" /></td>
+									 <td><input name="rel.4" id="rel.4.2" type="radio" value="2" /></td>
+									 <td><input name="rel.4" id="rel.4.3" type="radio" value="3" /></td>
+									 <td><input name="rel.4" id="rel.4.4" type="radio" value="4" /></td>
+									 <td><input name="rel.4" id="rel.4.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+						<a class='next_button button' >Next</a>
+					</div>
+
+					<div id="seff" class="page">
+						<div class='instructions'>
+						<p>
+							How confident are you about the following in this class?</p>
+						</div>
+
+						<div class="question">
+							<p>I can earn an A in this class. </p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="seff.1.1">Not at all<br />confident</label></td>
+									 <td><label for="seff.1.2">Only a little<br />confident</label></td>
+									 <td><label for="seff.1.3">Somewhat<br />confident</label></td>
+									 <td><label for="seff.1.4">Mostly<br />confident</label></td>
+									 <td><label for="seff.1.5">Completely<br />confident</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="seff.1" id="seff.1.1" type="radio" value="1" /></td>
+									 <td><input name="seff.1" id="seff.1.2" type="radio" value="2" /></td>
+									 <td><input name="seff.1" id="seff.1.3" type="radio" value="3" /></td>
+									 <td><input name="seff.1" id="seff.1.4" type="radio" value="4" /></td>
+									 <td><input name="seff.1" id="seff.1.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>I can do well on tests, even when they’re difficult.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="seff.2.1">Not at all<br />confident</label></td>
+									 <td><label for="seff.2.2">Only a little<br />confident</label></td>
+									 <td><label for="seff.2.3">Somewhat<br />confident</label></td>
+									 <td><label for="seff.2.4">Mostly<br />confident</label></td>
+									 <td><label for="seff.2.5">Completely<br />confident</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="seff.2" id="seff.2.1" type="radio" value="1" /></td>
+									 <td><input name="seff.2" id="seff.2.2" type="radio" value="2" /></td>
+									 <td><input name="seff.2" id="seff.2.3" type="radio" value="3" /></td>
+									 <td><input name="seff.2" id="seff.2.4" type="radio" value="4" /></td>
+									 <td><input name="seff.2" id="seff.2.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>I can master the hardest topics in this class.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="seff.3.1">Not at all<br />confident</label></td>
+									 <td><label for="seff.3.2">Only a little<br />confident</label></td>
+									 <td><label for="seff.3.3">Somewhat<br />confident</label></td>
+									 <td><label for="seff.3.4">Mostly<br />confident</label></td>
+									 <td><label for="seff.3.5">Completely<br />confident</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="seff.3" id="seff.3.1" type="radio" value="1" /></td>
+									 <td><input name="seff.3" id="seff.3.2" type="radio" value="2" /></td>
+									 <td><input name="seff.3" id="seff.3.3" type="radio" value="3" /></td>
+									 <td><input name="seff.3" id="seff.3.4" type="radio" value="4" /></td>
+									 <td><input name="seff.3" id="seff.3.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>I can meet all the learning goals my teacher sets.</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="seff.4.1">Not at all<br />confident</label></td>
+									 <td><label for="seff.4.2">Only a little<br />confident</label></td>
+									 <td><label for="seff.4.3">Somewhat<br />confident</label></td>
+									 <td><label for="seff.4.4">Mostly<br />confident</label></td>
+									 <td><label for="seff.4.5">Completely<br />confident</label></td>
+								 </tr>
+								 <tr>
+									 <td><input name="seff.4" id="seff.4.1" type="radio" value="1" /></td>
+									 <td><input name="seff.4" id="seff.4.2" type="radio" value="2" /></td>
+									 <td><input name="seff.4" id="seff.4.3" type="radio" value="3" /></td>
+									 <td><input name="seff.4" id="seff.4.4" type="radio" value="4" /></td>
+									 <td><input name="seff.4" id="seff.4.5" type="radio" value="5" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+						<a class='next_button button'>Finish</a>
+					</div>
+
+					<input id='submit_button' type='submit' value='submit' style="display: none;"/>
+
+				</form>
+
+			</div><!-- .container -->
+		</div><!-- .row -->
+	</div><!-- .col-sm-8 col-sm-offset-2 -->
+
+</div><!-- .survey-page -->
+
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}

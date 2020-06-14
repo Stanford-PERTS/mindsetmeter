@@ -1,0 +1,15 @@
+// _fonts.scss
+
+// Contains universal font styles for application
+
+$font-sans-serif: "myriad-pro",sans-serif;
+$fonts-serif: serif;
+
+$font-weight-bold: 700;
+$font-weight-normal: 300;
+
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

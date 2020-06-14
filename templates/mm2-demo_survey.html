@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}MM2 Demo Survey{% endblock %}
+
+{% block head %}
+
+    <!--
+
+      Take
+
+      Allows a user to take a given survey and see thier results.
+      Public keys passed in the url will save results for others
+      to see.
+
+      bmh Nov 2012
+
+    -->
+
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/serializeObject.min.js"></script>
+<script src="/js/mindsetMeter.js"></script>
+<script src="/js/logErrors.js"></script>
+
+<script type="text/javascript" src="/js/take-survey.js"></script>
+
+<script type="text/javascript">
+
+/* global mm */
+
+$(document).ready(function () {
+    'use strict';
+
+    // The url name of the "metric" in MM1 terms, "assessment" in MM2 terms.
+    var metric = '{{ name }}';
+
+    // Save participant id and phase number as answers, if present.
+    var params = mm.query_string_to_object();
+    $('#pid-input').val(params.pid || '');
+    $('#phase-input').val(params.phase || '');  // ok b/c phase counts from 1
+
+    var distributor_public_key = params.public_key;
+
+    // If no public key is provided in the URL, then this is a preview.
+    // Previews save data just like a normal survey, but there's no
+    // distributor key to connect them to, only and participant key so the
+    // completion page can show a report if we choose.
+    var isPreview = !distributor_public_key;
+
+    // Initialize participant's keys.
+    var participant_keys;  // {private_keys: [...], public_keys: [...]}
+    var keysCallback = function (keys) { participant_keys = keys; };
+    if (isPreview) {
+        // For preview, we want a different set of keys on each page load so
+        // that users can test out the survey with different responses.
+        mm.reset_keys(metric, keysCallback);
+    } else {
+        // Give the user a pair of keys, but only if they don't already have
+        // their own.
+        mm.ensure_cookie_has_keys(metric, keysCallback);
+    }
+
+    // Util
+    var get_answers = function () {
+        return mm.serialize('#survey');
+    };
+
+    // Api Calls
+    var post_result = function (event) {
+        var public_keys = mm.get_all_local_keys(metric).public_keys;
+        // Callback triggers JSONP call to MSK. (or, it will, maybe)
+        // Save the user's responses and go to the next page.
+        mm.post_result(event, public_keys, metric, get_answers(),
+                       cross_domain_submit, mm.get_group(metric));
+    };
+
+    // Use JSONP to tell the MSK that a response has been submitted.
+    var cross_domain_submit = function (response) {
+        if (params.pid && !isPreview) {
+            // @todo: tell the MSK about the result submission here using
+            // mm.jsonp(). Do the redirect in the callback rather than right
+            // here
+            redirect_to_complete();
+
+            // Not done yet b/c I just realized I can't look up the number of
+            // results associated with this distributor key b/c is a PUBLIC
+            // key. I don't have the private key. There's literally no way to
+            // do that.
+            //
+            // The only other option is to increment a counter on MSK with
+            // every submission here. That's more work than I want to do right
+            // now, mostly b/c it will be wasted if we integrate MM and MSK.
+        } else {
+            // There's no way to tell the MSK which user this is, so skip it,
+            // and redirect right away.
+            redirect_to_complete();
+        }
+    };
+
+    var redirect_to_complete = function () {
+        // Redirect the user to the results page with a key to view their
+        // individual results.
+
+        // The viewing key is different than the distributor key, as it is
+        // available only to the participant and is associated only with
+        // the participant's answers.
+        var viewing_key = participant_keys.private_keys[0];
+        var url = '../complete/' + metric +
+            '?private_key=' + viewing_key +
+            '&group=' + mm.get_group(metric);
+        window.location.href = url;
+    };
+
+    // Event Bindings
+    $('#submit_button').click(post_result);
+
+});
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="survey-page">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8 col-sm-offset-2">
+
+                <h1>MM2 Demo Survey</h1>
+
+                <!-- You can put in pretty tabs here if you want. -->
+<!--                 <div class="tabs">
+                    <ul>
+                        <li rel="toi">Survey</li>
+                    </li>
+                </div>
+ -->
+
+                <form id='survey' onsubmit="return false">
+
+
+
+<div id="toi" class="page">
+    <div class='instructions'>
+        <p>
+            Read each sentence below and mark the choice
+            that shows how much you agree with it. There
+            are no right or wrong answers.
+        </p>
+    </div>
+
+    <div class="hidden-question">
+        <input id="pid-input" name="pid" type="hidden">
+        <input id="phase-input" name="phase" type="hidden">
+    </div>
+
+    <div class="question">
+        <p>
+            You can learn new things, but you can't really change your basic
+            intelligence.
+        </p>
+
+         <table class="radio_horiz">
+             <tbody>
+             <tr>
+                 <td><label for="toi.1-1">Strongly<br />disagree</label></td>
+                 <td><label for="toi.1-2">Disagree</label></td>
+                 <td><label for="toi.1-3">Somewhat<br />disagree</label></td>
+                 <td><label for="toi.1-4">Somewhat<br />agree</label></td>
+                 <td><label for="toi.1-5">Agree</label></td>
+                 <td><label for="toi.1-6">Strongly<br />agree</label></td>
+             </tr>
+             <tr>
+                 <td><input id="toi.1-1" name="toi.1" type="radio" value="1"></td>
+                 <td><input id="toi.1-2" name="toi.1" type="radio" value="2"></td>
+                 <td><input id="toi.1-3" name="toi.1" type="radio" value="3"></td>
+                 <td><input id="toi.1-4" name="toi.1" type="radio" value="4"></td>
+                 <td><input id="toi.1-5" name="toi.1" type="radio" value="5"></td>
+                 <td><input id="toi.1-6" name="toi.1" type="radio" value="6"></td>
+             </tr>
+             </tbody>
+        </table>
+    </div>
+
+    <div class="question">
+        <p>
+            Your intelligence is something about you that you can't change very
+            much.
+        </p>
+
+         <table class="radio_horiz">
+             <tbody>
+             <tr>
+                 <td><label for="toi.2-1">Strongly<br />disagree</label></td>
+                 <td><label for="toi.2-2">Disagree</label></td>
+                 <td><label for="toi.2-3">Somewhat<br />disagree</label></td>
+                 <td><label for="toi.2-4">Somewhat<br />agree</label></td>
+                 <td><label for="toi.2-5">Agree</label></td>
+                 <td><label for="toi.2-6">Strongly<br />agree</label></td>
+             </tr>
+             <tr>
+                 <td><input id="toi.2-1" name="toi.2" type="radio" value="1"></td>
+                 <td><input id="toi.2-2" name="toi.2" type="radio" value="2"></td>
+                 <td><input id="toi.2-3" name="toi.2" type="radio" value="3"></td>
+                 <td><input id="toi.2-4" name="toi.2" type="radio" value="4"></td>
+                 <td><input id="toi.2-5" name="toi.2" type="radio" value="5"></td>
+                 <td><input id="toi.2-6" name="toi.2" type="radio" value="6"></td>
+             </tr>
+             </tbody>
+         </table>
+    </div>
+
+    <div class="question">
+        <p>
+            You have a certain amount of intelligence and you really can't do
+            much to change it.
+        </p>
+
+         <table class="radio_horiz">
+             <tbody>
+             <tr>
+                 <td><label for="toi.3-1">Strongly<br />disagree</label></td>
+                 <td><label for="toi.3-2">Disagree</label></td>
+                 <td><label for="toi.3-3">Somewhat<br />disagree</label></td>
+                 <td><label for="toi.3-4">Somewhat<br />agree</label></td>
+                 <td><label for="toi.3-5">Agree</label></td>
+                 <td><label for="toi.3-6">Strongly<br />agree</label></td>
+             </tr>
+             <tr>
+                 <td><input id="toi.3-1" name="toi.3" type="radio" value="1"></td>
+                 <td><input id="toi.3-2" name="toi.3" type="radio" value="2"></td>
+                 <td><input id="toi.3-3" name="toi.3" type="radio" value="3"></td>
+                 <td><input id="toi.3-4" name="toi.3" type="radio" value="4"></td>
+                 <td><input id="toi.3-5" name="toi.3" type="radio" value="5"></td>
+                 <td><input id="toi.3-6" name="toi.3" type="radio" value="6"></td>
+             </tr>
+             </tbody>
+         </table>
+    </div>
+</div>
+
+<input id="submit_button" type="submit"
+       value="Submit Response"/>
+
+
+
+                </form>
+
+            </div><!-- .container -->
+        </div><!-- .row -->
+    </div><!-- .col-sm-8 col-sm-offset-2 -->
+
+</div><!-- .survey-page -->
+
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}

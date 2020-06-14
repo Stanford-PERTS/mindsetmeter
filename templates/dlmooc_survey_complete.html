@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}PERTS Academic Mindsets Assessment - Complete{% endblock %}
+
+{% block head %}
+
+<!-- 
+  Results
+
+  Show results to a user based on the key they arrived with.
+
+  bmh Nov 2012
+
+-->
+
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/serializeObject.min.js"></script>
+<script src="/js/mindsetMeter.js"></script>
+<script src="/js/logErrors.js"></script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="survey-page--completed">
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+	
+				<h1>Thank you for completing this survey</h1>
+				<p>
+					Your answers have been logged. They will be provided to the individual that invited you to participate.
+				</p>
+		
+				<a class="action-button" href="/share/dlmooc">Conduct a New Survey</a><br>
+
+				<hr>
+				<br>
+		    <h3>Sponsors</h3>
+		    <p>
+		    	Free use of the Mindset Meter is generously supported by the William and Flora Hewlett Foundation and the Raikes Foundation.
+		    </p>
+				<br><br>
+				<a href="//raikesfoundation.org/"><img src="/static/raikes_logo.png" /></a>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="//www.hewlett.org/"><img src="/static/hewlett.png" /></a>
+
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+ <!-- Google Code for Looked at results Conversion Page -->
+
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = 1008646530;
+var google_conversion_language = "en";
+var google_conversion_format = "3";
+var google_conversion_color = "ffffff";
+var google_conversion_label = "7QA2COaUqAQQgvP64AM";
+var google_conversion_value = 5;
+/* ]]> */
+</script>
+<script type="text/javascript" src="http://www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+<div style="display:inline;">
+<img height="1" width="1" style="border-style:none;" alt="" src="http://www.googleadservices.com/pagead/conversion/1008646530/?value=5&amp;label=7QA2COaUqAQQgvP64AM&amp;guid=ON&amp;script=0"/>
+</div>
+</noscript> 
+
+	    
+{% endblock %}
+

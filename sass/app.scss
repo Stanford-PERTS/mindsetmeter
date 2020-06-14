@@ -1,0 +1,745 @@
+/* Application-wide styles */
+
+@import '_colors';
+@import '_animations';
+@import '_responsive';
+@import '_fonts';
+@import 'compass';
+
+@include keyframes(pop-to-size) {
+  0% {
+    @include opacity(0);
+    height: 0px; width: 0px;
+    top: 50%; left: 50%;
+  }
+  50% { @include opacity(0); }
+  100% {
+    @include opacity(1.0);
+    height: 100%; width: 100%;
+    top: 0px; left: 0px;
+  }
+}
+
+* {
+  @include box-sizing(border-box);
+}
+*:before, *:after {
+  @include box-sizing(border-box);
+}
+
+input:required {
+  box-shadow: none;
+}
+
+a:focus, button:focus, input:focus {
+  outline: none;
+}
+
+button::-moz-focus-inner {
+  border: 0;
+}
+
+html, body {
+  font-family: $font-sans-serif;
+  color: $font-color;
+}
+
+body {
+  z-index: 0;
+  overflow-y: scroll; /* has to be scroll, not auto */
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+
+}
+
+p {
+
+}
+
+img {
+  max-width: 100% !important;
+}
+
+textarea {
+  resize: none;
+}
+
+.mobile-only {
+  display: none;
+}
+
+a, [ng-click] {
+  cursor: pointer;
+}
+
+.pull-right {
+  float: right;
+}
+
+button {
+  border: none;
+  outline: none;
+  text-align: center;
+}
+
+// Navigation bar on top of page
+
+nav {
+  position: absolute;
+  top: 0px; left: 0px;
+  width: 100%;
+  text-align: center;
+  height: 100px;
+  padding-top: 30px;
+  background-color: none;
+
+  .nav-left, .nav-right {
+    width: 40%;
+
+    a {
+      display: inline-block;
+      text-transform: uppercase;
+      color: #aaaaac;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      font-size: 13px;
+      text-decoration: none;
+      padding: 5px;
+
+      &:hover {
+        color: $blue-color;
+      }
+    }
+  }
+
+  .nav-left {
+    float: left;
+    text-align: left;
+    a {
+      margin-right: 22px;
+    }
+  }
+
+  .nav-right {
+    float: right;
+    text-align: right;
+    a {
+      margin-left: 22px;
+    }
+  }
+
+  &.small-navbar {
+    padding-top: 0px;
+    background-color: white;
+    height: 0px;
+    position: fixed;
+    overflow: hidden;
+    @include transition(0.25s ease-in-out);
+
+    &.active {
+      height: 50px;
+      padding-top: 10px;
+      a { margin-bottom: 10px; }
+      border-bottom: 1px solid #f1f2f3;
+    }
+  }
+}
+
+a.action-button, button.action-button {
+  display: inline-block;
+  padding: 0px 45px 0px 45px;
+  height: 44px;
+  line-height: 44px;
+  background-color: $blue-color;
+  color: white;
+  font-size: 16px;
+  letter-spacing: 1px;
+  margin: 30px 0px;
+  text-decoration: none;
+  @include transition(0.08s ease-in-out);
+
+  &:hover {
+    background-color: darken($blue-color, 10);
+  }
+}
+
+span.error-message {
+  font-size: 14px;
+  color: $error-color;
+}
+
+a.action-button--assessment {
+  @extend a.action-button;
+  margin-top: 15px;
+}
+
+// Main content sections on page
+
+.page-section {
+  position: relative;
+  overflow-x: hidden;
+  @include transform(translateZ(0));
+  @include backface-visibility(hidden);
+
+  h2 {
+    margin-bottom: 30px;
+  }
+
+  p {
+    font-size: 18px;
+    color: #666;
+  }
+
+  a {
+    color: $light-blue-color;
+    font-size: 18px;
+  }
+
+  a.action-button, button.action-button {
+    color: white;
+  }
+}
+
+footer {
+  padding-top: 45px;
+  padding-bottom: 90px;
+  background-color: #33333D;
+
+  span {
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  a {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: white;
+    display: inline-block;
+    margin-right: 20px;
+
+    &:hover {
+      color: white;
+    }
+  }
+
+  .perts-address {
+    margin-top: 5px;
+    color: #999;
+    span {
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .social-links {
+    text-align: right;
+    margin-top: 5px;
+
+    a {
+      margin-right: 10px;
+      color: #999;
+      padding: 5px;
+
+      &:hover {
+        color: white;
+      }
+    }
+  }
+
+  .copyright-info {
+    margin-top: 30px;
+    color: #666;
+  }
+}
+
+a#back-to-top {
+  display: none !important;
+}
+
+//**************************************************************************
+// Static pages
+//**************************************************************************
+
+.static-page {
+  padding-bottom: 130px;
+  color: $font-color;
+
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    color: $dark-blue-color;
+  }
+
+  h1, h2 {
+    font-weight: 900;
+  }
+
+  h1 {
+    font-size: 50px;
+    color: white;
+  }
+
+  h2 {
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+
+  p, li {
+    font-size: 19px;
+    margin-bottom: 15px;
+    letter-spacing: 0.25px;
+    color: #666;
+
+    a {
+      color: $light-blue-color;
+    }
+  }
+
+  blockquote {
+    color: #666;
+    letter-spacing: 0.25px;
+    font-style: italic;
+    border-left-color: transparent;
+    position: relative;
+    font-size: 19px;
+    padding: 20px 15px 20px 25px;
+    background-color: #fafafc;
+
+    &:before {
+      font-family: "FontAwesome";
+      content: "\f10d";
+      position: absolute;
+      display: block;
+      height: 40px;
+      width: 40px;
+      font-size: 31px;
+      font-style: normal;
+      color: $light-blue-color;
+      @include opacity(0.2);
+      top: 5px; left: 7px;
+
+    }
+  }
+
+  .page-header {
+    width: 100%;
+    height: 220px;
+    padding-top: 125px;
+    padding-bottom: 15px;
+    background-color: $blue-color;
+    color: white;
+    position: relative;
+    border-bottom: 2px solid $deep-blue-color;
+    background-image: url('/static/cover-pattern.png');
+    background-position: -8px -8px;
+    @include background-size(241px 148px);
+
+    background-color: $light-blue-color;
+    border-bottom: 2px solid $bold-blue-color;
+
+    &.resources {
+      background-color: $light-blue-color;
+      border-bottom: 2px solid $bold-blue-color;
+    }
+  }
+
+  .container.container--main {
+    padding-top: 60px;
+  }
+
+  .static-page-section {
+    padding: 30px 0px;
+
+    img.section-image {
+      margin: 15px auto 30px auto;
+    }
+  }
+
+  .partner-wrapper {
+    display: inline-block;
+    width: 25%;
+    margin-bottom: 30px;
+    padding: 0px 10px;
+    text-align: center;
+
+    img {
+      max-width: 100%;
+    }
+  }
+
+  .map-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .map-overlay {
+    background: transparent;
+    position: absolute;
+    width:100%;
+    height: 400px; /* your iframe height */
+    top: 0px;
+    left: 0px;
+  }
+
+  .infobox {
+    border: 1px solid #cccccf;
+    padding: 15px 30px 30px 30px;
+    margin-top: 30px;
+  }
+
+  .reading-item {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #cccccf;
+
+    h4 a {
+      color: $blue-color;
+      font-size: 20px;
+      line-height: 1.32;
+
+      i {
+        font-size: 16px;
+      }
+    }
+
+    p {
+      font-size: 15px;
+    }
+  }
+}
+
+// Ordered lists for instructions
+
+.instruction {
+  position: relative;
+  font-size: 19px;
+  margin-bottom: 15px;
+  letter-spacing: 0.25px;
+  color: #666;
+  padding-left: 50px;
+  padding-top: 8px;
+  padding-bottom: 10px;
+
+  input {
+    padding: 8px 12px;
+    width: 280px;
+    font-size: 17px;
+    vertical-align: bottom;
+    margin: 15px 0px 0px 0px;
+  }
+
+  a.action-button {
+    margin: 15px 0px 0px 0px;
+    padding: 0px 18px;
+  }
+
+}
+
+.dropcap {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: block;
+  vertical-align: bottom;
+  height: 40px;
+  width: 40px;
+  padding: 4px;
+  text-align: center;
+  @include border-radius(30px);
+  border: 3px solid $blue-color;
+  color: $blue-color;
+}
+
+.side-navigation {
+  top: 60px;
+
+  ul {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+
+    li {
+      margin: 0px;
+      list-style: none;
+      padding: 0px;
+      width: 100%;
+
+      a {
+        display: inline-block;
+        font-size: 15px;
+        padding: 7px 25px;
+        width: 100%;
+        border-left: 1px solid $light-blue-color;
+        text-decoration: none;
+
+        &.sub-item {
+          font-size: 13px;
+          padding-left: 40px;
+          padding-right: 10px;
+        }
+
+        &:hover {
+          background-color: $light-blue-color;
+          border-left: 1px solid $blue-color;
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+//**************************************************************************
+// Surveys
+//**************************************************************************
+
+.survey-page {
+  padding: 90px 0px 90px 0px;
+  color: $font-color;
+
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    color: $dark-blue-color;
+  }
+
+  h1 {
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    font-weight: 900;
+  }
+
+  p, li {
+    font-size: 19px;
+    margin-bottom: 15px;
+    letter-spacing: 0.25px;
+    color: #666;
+
+    a {
+      color: $light-blue-color;
+    }
+  }
+
+  .tabs {
+    display: block;
+    ul {
+      padding: 0px;
+      margin: 0px 0px 45px 0px;
+      width: 100%;
+    }
+
+    li {
+      list-style: none;
+      display: inline-block;
+      padding: 6px 10px;
+      font-size: 14px;
+      margin-right: 15px;
+      cursor: pointer;
+
+      &.active {
+        border-bottom: 4px solid $light-blue-color;
+        color: $blue-color;
+      }
+    }
+  }
+
+  .instructions > p {
+    margin: 30px auto 60px auto;
+  }
+
+  .page {
+    &#welcome {
+      margin: 30px auto 60px auto;
+    }
+  }
+
+  table {
+    width: 100%;
+    margin: 30px auto 60px auto;
+
+    tbody {
+      width: 100%;
+
+      tr {
+        width: 100%;
+
+        td {
+          text-align: center;
+          width: 16.666%;
+
+          label {
+            font-weight: 200;
+          }
+        }
+      }
+    }
+  }
+
+  input[type="submit"] {
+    margin: 75px auto 30px 0px;
+    display: block;
+    border: none;
+    outline: none;
+    @extend a.action-button;
+  }
+
+  a.next_button {
+    margin: 75px auto 30px 0px;
+    display: inline-block;
+    border: none;
+    outline: none;
+    @extend a.action-button;
+  }
+}
+
+.survey-page--completed {
+  @extend .survey-page;
+  margin-top: 60px;
+  margin-bottom: 120px;
+}
+
+.survey-page--no-responses {
+  @extend .survey-page;
+  margin-top: 60px;
+  margin-bottom: 120px;
+}
+
+// Survey page results
+
+.static-page.survey-results {
+  padding-top: 60px;
+
+  h1 {
+
+  }
+
+  .results-summary {
+    padding: 60px 0px;
+
+    h3 {
+      font-weight: 400;
+    }
+  }
+
+  .mindset-category {
+    margin: 15px auto 75px auto;
+
+    img {
+      max-width: 675px !important;
+    }
+  }
+
+  .widget {
+    padding-top: 45px;
+
+    h4 {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    > a {
+      font-size: 15px;
+    }
+
+    ul {
+      padding-left: 15px;
+      li {
+        border-top: 1px solid #e3e3e3;
+        font-size: 14px;
+        padding-top: 10px;
+        list-style: none;
+
+        &:first-child {
+          border-top: none;
+        }
+
+        img {
+          padding-top: 20px;
+          max-height: 140px;
+          display: block;
+        }
+      }
+    }
+  }
+
+  .email_feedback_form {
+    input, textarea {
+      display: block;
+      outline: none;
+      padding: 6px 12px;
+      width: 290px;
+      border: 1px solid #ccc;
+      margin: 5px auto 5px 0px;
+    }
+  }
+
+}
+
+//**************************************************************************
+// Respsonsive styling
+//**************************************************************************
+
+// Laptop sizing changes
+
+@include laptop {
+
+  .static-page.survey-results {
+
+    .mindset-category {
+
+      img {
+        max-width: 100% !important;
+      }
+    }
+  }
+
+}
+
+// Tablet sizing changes
+
+@include tablet {
+
+}
+
+// Mobile sizing changes
+
+@include mobile {
+
+  footer {
+    text-align: center;
+
+    .perts-address {
+      margin-top: 15px;
+    }
+
+    .social-links {
+      text-align: center;
+      margin-top: 20px;
+    }
+  }
+
+  .static-page {
+    .page-header {
+      height: auto;
+    }
+  }
+
+}
+
+//**************************************************************************
+// Animations only work outside of IE
+//**************************************************************************
+
+
+html.ie7, html.ie8 {
+
+  .hidden-ie {
+    display: none !important;
+  }
+}
+

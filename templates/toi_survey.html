@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}PERTS Growth Mindset Assessment - Survey{% endblock %}
+
+{% block head %}
+
+	<!--
+
+	  Take
+
+	  Allows a user to take a given survey and see thier results.
+	  Public keys passed in the url will save results for others
+	  to see.
+
+	  bmh Nov 2012
+
+	-->
+
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/serializeObject.min.js"></script>
+<script src="/js/mindsetMeter.js"></script>
+<script src="/js/logErrors.js"></script>
+
+<script type="text/javascript" src="/js/take-survey.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+	  "use strict";
+
+	  // Give the user a pair of keys
+	  // if they don't already have their own
+	  mm.ensure_cookie_has_keys('{{name}}');
+
+	  // Util
+	  function get_answers() {
+	    return mm.serialize('#survey');
+	  }
+
+	  // Api Calls
+	  function post_result(event) {
+	    var public_keys = mm.get_all_local_keys('{{name}}').public_keys;
+	    var group = mm.get_group('{{name}}');
+	    mm.post_result(event, public_keys, '{{name}}', get_answers(), function () {
+
+	      // Redirect the user to the results page
+	      var viewing_key = mm.get_keys_from_cookie('{{name}}').private_keys[0];
+	      window.location.href = '../complete/toi';
+	    }, group);
+	  }
+
+	  // Event Bindings
+	  $('#submit_button').click(post_result);
+
+	});
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- toi-grit survey -->
+
+<div class="survey-page">
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-8 col-sm-offset-2">
+
+				<h1>Mindset Survey</h1>
+
+				<div class="tabs">
+					<ul>
+						<li rel="toi">Survey</li>
+					</li>
+				</div>
+
+				<form id='survey'>
+
+					<div id="toi" class="page">
+						<div class='instructions'>
+							<p>
+								Read each sentence below and mark the choice that shows how much you agree with it. There are no right or wrong answers.
+							</p>
+						</div>
+
+						<div class="question">
+							<p>
+								You can learn new things, but you can't really change your basic intelligence.
+							</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="toi.1-1">Strongly<br />disagree</label></td>
+									 <td><label for="toi.1-2">Disagree</label></td>
+									 <td><label for="toi.1-3">Somewhat<br />disagree</label></td>
+									 <td><label for="toi.1-4">Somewhat<br />agree</label></td>
+									 <td><label for="toi.1-5">Agree</label></td>
+									 <td><label for="toi.1-6">Strongly<br />agree</label></td>
+								 </tr>
+								 <tr>
+									 <td><input id="toi.1-1" name="toi.1" type="radio" value="1" /></td>
+									 <td><input id="toi.1-2" name="toi.1" type="radio" value="2" /></td>
+									 <td><input id="toi.1-3" name="toi.1" type="radio" value="3" /></td>
+									 <td><input id="toi.1-4" name="toi.1" type="radio" value="4" /></td>
+									 <td><input id="toi.1-5" name="toi.1" type="radio" value="5" /></td>
+									 <td><input id="toi.1-6" name="toi.1" type="radio" value="6" /></td>
+								 </tr>
+								 </tbody>
+							</table>
+						</div>
+
+						<div class="question">
+							<p>
+								Your intelligence is something about you that you can't change very much.
+							</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="toi.2-1">Strongly<br />disagree</label></td>
+									 <td><label for="toi.2-2">Disagree</label></td>
+									 <td><label for="toi.2-3">Somewhat<br />disagree</label></td>
+									 <td><label for="toi.2-4">Somewhat<br />agree</label></td>
+									 <td><label for="toi.2-5">Agree</label></td>
+									 <td><label for="toi.2-6">Strongly<br />agree</label></td>
+								 </tr>
+								 <tr>
+									 <td><input id="toi.2-1" name="toi.2" type="radio" value="1" /></td>
+									 <td><input id="toi.2-2" name="toi.2" type="radio" value="2" /></td>
+									 <td><input id="toi.2-3" name="toi.2" type="radio" value="3" /></td>
+									 <td><input id="toi.2-4" name="toi.2" type="radio" value="4" /></td>
+									 <td><input id="toi.2-5" name="toi.2" type="radio" value="5" /></td>
+									 <td><input id="toi.2-6" name="toi.2" type="radio" value="6" /></td>
+								 </tr>
+								 </tbody>
+							 </table>
+						</div>
+
+						<div class="question">
+							<p>
+								You have a certain amount of intelligence and you really can't do much to change it.
+							</p>
+
+							 <table class="radio_horiz">
+								 <tbody>
+								 <tr>
+									 <td><label for="toi.3-1">Strongly<br />disagree</label></td>
+									 <td><label for="toi.3-2">Disagree</label></td>
+									 <td><label for="toi.3-3">Somewhat<br />disagree</label></td>
+									 <td><label for="toi.3-4">Somewhat<br />agree</label></td>
+									 <td><label for="toi.3-5">Agree</label></td>
+									 <td><label for="toi.3-6">Strongly<br />agree</label></td>
+								 </tr>
+								 <tr>
+									 <td><input id="toi.3-1" name="toi.3" type="radio" value="1" /></td>
+									 <td><input id="toi.3-2" name="toi.3" type="radio" value="2" /></td>
+									 <td><input id="toi.3-3" name="toi.3" type="radio" value="3" /></td>
+									 <td><input id="toi.3-4" name="toi.3" type="radio" value="4" /></td>
+									 <td><input id="toi.3-5" name="toi.3" type="radio" value="5" /></td>
+									 <td><input id="toi.3-6" name="toi.3" type="radio" value="6" /></td>
+								 </tr>
+								 </tbody>
+							 </table>
+						</div>
+					</div>
+
+					<input id="submit_button" type="submit" value="Submit Response"/>
+
+				</form>
+
+			</div><!-- .container -->
+		</div><!-- .row -->
+	</div><!-- .col-sm-8 col-sm-offset-2 -->
+
+</div><!-- .survey-page -->
+
+{% endblock %}
+
+{% block navbar %}
+{% endblock %}

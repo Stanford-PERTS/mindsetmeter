@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}PERTS Growth Mindset Assessment{% endblock %}
+
+{% block head %}
+<!-- 
+  Share
+
+  Allow a user to get links to perfom and share a survey
+
+  bmh Nov 2012
+
+-->
+    <script src="/js/mindsetMeter.js"></script>
+    <script src="/js/jquery.cookie.js"></script>
+
+   	<script type='text/javascript'>
+    $(document).ready(function () {
+      "use strict";
+
+      // API wrappers
+      function post_email(event) {
+        $('#emailError').html(''); 
+        mm.post_email(
+          event,
+          '{{name}}',
+          '{{private_key}}',
+          $('#address').val(),
+          function(result){
+            if(result.ok){
+              $('#email').html('Email Sent')
+            } 
+            else {
+              $('#emailError').html('Error with address'); 
+              mm.post_error(event, "Could not send email to " + $('#address').val())
+            }
+          }
+        );
+      }
+
+      function reset_keys(event){
+        event.preventDefault();
+        mm.reset_keys('{{name}}', render_group_links);
+      }
+
+      // Rendering Functions
+      function render_group_links(keys){
+        // Populate Invitation and Results links
+        $('#group_invite').html( mm.get_root() + "/take/{{name}}?public_key=" + keys.public_keys[0] );
+        $('#group_results').html( mm.get_root() + "/results/" + keys.private_keys[0] );
+      }
+
+      // Event Bindings
+      $('#email').submit(post_email);
+      $('#email').submit(reset_keys);
+
+      // Onload
+      // Give the user a pair of keys to share if they don't already have their own
+      mm.ensure_cookie_has_keys('{{name}}', render_group_links);
+
+    });		
+	</script>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- The survey description will automatically load here -->
+
+<div class="static-page about-page">
+
+  <div class="page-header">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <h1>Growth Mindset Assessment</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container container--main">
+    <div class="row">
+      <div class="col-sm-9">
+
+        <p>
+          Students with a growth mindset are more interested in learning, more eager to take on challenges, and more academically successful. 
+        </p>
+        <a href="#learn" class="action-button">Learn about the Science</a>
+        &nbsp;&nbsp;
+        <a href="#start" class="action-button">Use the Assessment</a>
+
+        <div class="static-page-section" id="demo">
+          <h2>How it works... in 50 seconds.</h2>
+          <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" src="//www.youtube.com/embed/cwaGIptC8wI?rel=0" frameborder="0" allowfullscreen></iframe>
+          </div>
+        </div>        
+
+        <div class="static-page-section" id="start">
+          <h2>Learn students' mindsets in 5 minutes</h2>
+          <div class="instruction"><div class="dropcap">1</div>
+            Enter your email and click "Send me the links"
+            <div class="email_link_form">
+              <form id="email" style="display:inline;">
+                <input id="address" placeholder="Your email address here" >
+                <a onmousedown="$('#email').submit();" type='submit' class="action-button">Send me the links</a>
+              </form>
+              <br>
+              <span id="emailError" class="error-message"></span>
+            </div>
+          </div>
+          <div class="instruction"><div class="dropcap">2</div>
+            Find the <strong>Survey Link</strong> and <strong>Report Link</strong> in your email
+          </div>
+          <div class="instruction"><div class="dropcap">3</div>
+            Ask your students to visit the <strong>Survey Link</strong> and complete the survey
+          </div>
+          <div class="instruction"><div class="dropcap">4</div>
+            Visit the <strong>Report Link</strong> to see their mindsets and find resources
+          </div>
+        </div>  
+
+        <div class="static-page-section" id="see">
+          <h2>See the Assessment</h2>
+          <p>
+            The Growth Mindset Scale has been used in numerous studies. It is a short, valid, and reliable diagnostic of students' mindsets. Look at the assessment to see what surveyed students will experience. View the sample report to see the information you will be provided.
+          </p>
+          <a id='take_link' href='/take/{{name}}' class="action-button">See the assessment</a>
+          &nbsp;&nbsp;
+          <a id='report_link' href='/sample/{{name}}' class="action-button">See a sample report</a>
+        </div>
+
+        <div class="static-page-section" id="learn">  
+          <h2>About Growth Mindset</h2>
+          <p>
+            People can think about intelligence as something that is stable (a fixed mindset) or as something than can be grown (a growth mindset). Dozens of studies show that students with a growth mindset embrace challenges and perform better over time. Research also shows that students' mindsets can change through targeted interventions and interactions with adults.
+          </p>
+          <p>
+            <a href="http://www.ncbi.nlm.nih.gov/pubmed/17328703" target="_blank">
+              Blackwell et al., 2007&nbsp;&nbsp;<i class="fa fa-external-link"></i></a>
+            <br>
+            <a href="http://www.ncbi.nlm.nih.gov/pubmed/23163438" target="_blank">
+              Dweck, 2012&nbsp;&nbsp;<i class="fa fa-external-link"></i></a>
+          </p>
+        </div>
+
+        <div class="static-page-section" id="benefits">  
+          <h2>Benefits of a Growth Mindset</h2>
+          <img src="http://p3.perts.net/static/images/raising_hands.jpg"/>
+          <h3>Desire for learning</h3>
+          <p>Students with a growth mindset understand that learning is <em>how</em> you grow your intelligence. They care more about learning than about <em>looking</em> smart. This means that growth mindset students:
+          </p>
+          <ul>
+            <li>Raise their hands more</li>
+            <li>Ask more questions</li>
+            <li>Seek out challenges that allow them to learn something new</li>
+          </ul>
+          
+          <br><br>
+
+          <img src="http://p3.perts.net/static/images/computer_lab.jpg"/>
+          <h3>Motivation</h3>
+          <p>Fixed mindset students believe that if you are smart, you shouldn't have to try. Growth mindset students understand that effort is how you <em>become</em> smart. Growth mindset students:
+          </p>
+          <ul>
+            <li>Study more</li>
+            <li>Put in the extra effort required to succeed</li>
+            <li>Value learning the right way over the easy way</li>
+          </ul>
+
+          <br><br>
+          
+          <img src="http://p3.perts.net/static/images/about_plant.jpg"/>
+          <h3>Resilience</h3>
+          <p>
+            When fixed mindset students encounter a challenge or setback, they give up. They conclude that they must not be smart at that thing. Growth mindset students view challenges and setbacks as opportunties &mdash; they have identified an area for growth. They respond to setbacks by:
+          </p>
+          <ul>
+            <li>Spending more time on difficult schoolwork</li>
+            <li>Trying new strategies</li>
+            <li>Seeking help from others students or the teacher</p>
+          </ul>
+
+          <br><br>
+
+          <img src="http://p3.perts.net/static/images/results.png"/>
+          <h3>Higher Achievement</h3>
+          <p>Given that growth mindset students value learning, effort, and challenge, it is not surprising that they do better in school. When students are taught a growth mindset, they:
+          </p>
+          <ul>
+            <li>Earn higher grades</li>
+            <li>Pass more courses</li>
+            <li>Earn more satisfactory grades (see above)</li>
+          </ul>
+          <p>Researchers at <a href="http://www.perts.net">PERTS</a> are applying mindset research to improve student achievement across the nation.
+          </p>
+
+        </div>  
+
+        <div class="static-page-section" id="sponsors">
+          <h2>Sponsors</h2>
+          <p>
+            Free use of the Mindset Meter is generously supported by the William and Flora
+            Hewlett Foundation and the Raikes Foundation.
+          </p>
+          <a href="//raikesfoundation.org/"><img src="/static/raikes_logo.png" /></a>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <a href="//www.hewlett.org/"><img src="/static/hewlett.png" /></a>
+        </div>
+
+        <div class="static-page-section" id="readings">
+          <h2>Readings</h2>
+          <ul class="categories">
+            <li><a href="http://ccsr.uchicago.edu/publications/teaching-adolescents-become-learners-role-noncognitive-factors-shaping-school" target="_blank">Learn About Mindsets,<br> CCSR Report</a></li>
+            <li><a href="http://p3.perts.net/static/documents/yeager_walton_2011.pdf" target="_blank">Learn About Mindset Interventions,<br> Yeager &amp; Walton</a></li>
+            <li><a href="http://p3.perts.net/static/documents/PERTS_Summary_January_2014.pdf" target="_blank">Learn about PERTS Results,<br> Executive Summary</a></li>
+          </ul>
+        </div>
+
+      </div><!-- .col-sm-9 -->
+
+      <!-- Sidepanel with navigation -->
+
+      <div class="col-sm-3 hidden-xs">
+        <div class="side-navigation" data-spy="affix" data-offset-top="282" data-offset-bottom="">
+          <ul>
+            <li><a href="#demo">How It Works</a></li>
+            <li><a href="#start">Get Started</a></li>
+            <li><a href="#see">See Samples</a></li>
+            <li><a href="#learn">About Growth Mindset</a></li>
+            <li><a href="#benefits">Benefits of Growth Mindset</a></li>
+            <li><a href="#sponsors">Our Sponsors</a></li>
+            <li><a href="#readings">Further Reading</a></li>
+          </ul>
+
+        </div>
+      </div>
+
+    </div><!-- .row -->
+  </div><!-- .container -->
+
+</div>
+
+{% endblock %}
+
+

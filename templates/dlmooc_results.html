@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+
+{% block title %}PERTS Academic Mindsets Assessment - Results{% endblock %}
+
+{% block head %}
+<!--
+  Results
+
+  Show results to a user based on the key they arrived with.
+
+  bmh Nov 2012
+
+-->
+
+<script src="/js/jquery.cookie.js"></script>
+<script src="/js/serializeObject.min.js"></script>
+<script src="/js/mindsetMeter.js"></script>
+<script src="/js/logErrors.js"></script>
+<script src="/js/Chart.js"></script>
+<!--[if IE]><script src="/js/excanvas.js"></script><![endif]-->
+<script>
+
+	 	mm.answers = JSON.parse('{{answers}}');
+	 	mm.counts = {};			// count data by category
+	 	mm.proportions = {};	// proportion data by category
+	 	mm.graphData = {};		// data used by chart.js
+
+	  	mm.counts['toi'] = {
+	  		'growth': 0,
+			'intermediate': 0,
+			'fixed': 0,
+			'total': 0
+		};
+
+	  	mm.counts['belong'] = {
+	  		'secure': 0,
+			'intermediate': 0,
+			'insecure': 0,
+			'total': 0
+		};
+
+	  	mm.counts['seff'] = {
+	  		'capable': 0,
+			'intermediate': 0,
+			'incapable': 0,
+			'total': 0
+		};
+
+	  	mm.counts['rel'] = {
+	  		'relevant': 0,
+			'intermediate': 0,
+			'irrelevant': 0,
+			'total': 0
+		};
+
+	  	mm.counts['adaptive_mindsets'] = {
+	  		'0': 0,
+	  		'1-2': 0,
+	  		'3-4': 0,
+	  		'total': 0
+	  	}
+
+		mm.graphData['adaptive_mindsets'] = [
+			{
+				value: 0,	// gets converted to %
+				color:"#33CC33",
+				title:"3-4"
+			},
+			{
+				value : 0,	// gets converted to %
+				color : "#FF9933",
+				title:"1-2"
+			},
+			{
+				value : 0,	// gets converted to %
+				color : "#CC3300",
+				title:"0"
+			}
+		];
+
+		mm.calculateProportions = function(){
+			for( metric in mm.counts ){
+				mm.proportions[metric] = {};
+				for( level in mm.counts[metric] ){
+					prop = mm.counts[metric][level]/mm.counts[metric]['total'];
+					if( level != "total" ){
+						mm.proportions[metric][level] = Math.round(prop * 100);
+					}
+				}
+			}
+		}
+
+		function mean(ar){
+			var i = 0, sum = 0;
+			for(i = 0; i < ar.length; i++){
+				sum += Number(ar[i]);
+			}
+			return( Math.round(sum/ar.length * 100)/100 );
+		}
+
+		function scaleMean( obj, pattern ){
+			var targetsVals = [];
+			for( key in obj ){
+				if( key.search( pattern ) == 0 ){ targetsVals.push( obj[key] ) };
+			}
+			return( mean( targetsVals ) );
+		}
+
+		function renderToiPieChart(props, graphData){
+			for( i in graphData ){
+				level = graphData[i]['title'];
+				graphData[i]['value'] = props[level];
+			}
+			var ctx = document.getElementById("gmsChart").getContext("2d");
+			var gmsChart = new Chart(ctx).Pie(graphData);
+		}
+
+		// compute each individuals' level for each metric
+		$(mm.answers).each( function(x){
+			var adaptiveMindsets = 0;
+
+			var sm = scaleMean( mm.answers[x], "toi." );
+			mm.answers[x]["toi_mean"] = sm;
+			if( sm < 7 ) mm.answers[x]["toi_level"] = "fixed";
+			if( sm < 5 ) mm.answers[x]["toi_level"] = "intermediate";
+			if( sm <= 2 ){
+				mm.answers[x]["toi_level"] = "growth";
+				adaptiveMindsets++;
+			}
+			if( isNaN(sm) ){ mm.answers[x]["toi_level"] = ""; }
+			else{
+				mm.counts['toi'][mm.answers[x]["toi_level"]]++;
+				mm.counts['toi']["total"]++;
+			}
+
+			var sm = scaleMean( mm.answers[x], "belong_class." );
+			mm.answers[x]["belong_mean"] = sm;
+			if( sm > 0 ) mm.answers[x]["belong_level"] = "insecure";
+			if( sm > 1.67 ) mm.answers[x]["belong_level"] = "intermediate";
+			if( sm > 4 ){
+				mm.answers[x]["belong_level"] = "secure";
+				adaptiveMindsets++;
+			}
+			if( isNaN(sm) ){ mm.answers[x]["belong_level"] = ""; }
+			else{
+				mm.counts['belong'][mm.answers[x]["belong_level"]]++;
+				mm.counts['belong']["total"]++;
+			}
+
+			var sm = scaleMean( mm.answers[x], "seff." );
+			mm.answers[x]["seff_mean"] = sm;
+			if( sm > 0 ) mm.answers[x]["seff_level"] = "incapable";
+			if( sm > 1.67 ) mm.answers[x]["seff_level"] = "intermediate";
+			if( sm > 4 ){
+				mm.answers[x]["seff_level"] = "capable";
+				adaptiveMindsets++;
+			}
+			if( isNaN(sm) ){ mm.answers[x]["seff_level"] = ""; }
+			else{
+				mm.counts['seff'][mm.answers[x]["seff_level"]]++;
+				mm.counts['seff']["total"]++;
+			}
+
+			var sm = scaleMean( mm.answers[x], "rel." );
+			mm.answers[x]["rel_mean"] = sm;
+			if( sm > 0 ) mm.answers[x]["rel_level"] = "irrelevant";
+			if( sm > 1.67 ) mm.answers[x]["rel_level"] = "intermediate";
+			if( sm > 4 ){
+				mm.answers[x]["rel_level"] = "relevant";
+				adaptiveMindsets++;
+			}
+			if( isNaN(sm) ){ mm.answers[x]["rel_level"] = ""; }
+			else{
+				mm.counts['rel'][mm.answers[x]["rel_level"]]++;
+				mm.counts['rel']["total"]++;
+			}
+
+
+			if( adaptiveMindsets >= 0 ) mm.answers[x]["mindset_level"] = "0";
+			if( adaptiveMindsets > 0 ) mm.answers[x]["mindset_level"] = "1-2";
+			if( adaptiveMindsets > 2 ) mm.answers[x]["mindset_level"] = "3-4";
+			if( isNaN(sm) ){ mm.answers[x]["mindset_level"] = ""; }
+			else{
+				mm.counts['adaptive_mindsets'][mm.answers[x]["mindset_level"]]++;
+				mm.counts['adaptive_mindsets']["total"]++;
+			}
+		});
+
+
+    $(document).ready(function () {
+      "use strict";
+
+		// API wrappers
+	    function post_feedback_email(event) {
+	      mm.post_feedback_email(
+	        event,
+	        $('#reply_to').val(),
+	        $('#message').val(),
+	        function(result){
+	          if(result.ok){
+	            $('#email').html('<strong>Feedback sent.  Thanks!</strong>')
+	          }
+	          else {
+	            $('#email').html('Error');
+	            mm.post_error(event, "Could not send feedback, please email  directly")
+	          }
+	        }
+	      );
+	    }
+
+	    // event bindings
+	    $('#email').submit(post_feedback_email);
+
+    });
+
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="static-page survey-results">
+
+	<div class="container">
+		<div class="row results-summary">
+
+			<div class="col-sm-5 col-sm-offset-1" style="text-align: center;">
+				<canvas id="gmsChart" width="300" height="300"></canvas>
+			</div>
+
+			<div class="col-sm-5">
+				<h3>
+					Of the
+					<span class='number_of_students'></span>
+					surveyed students...
+				</h3>
+				<h3>
+					<span class="chart top">
+						<span id='top_pct'></span>%
+					</span>
+					have 3-4 adaptive mindsets.
+				</h3>
+				<h3>
+					<span class="chart middle">
+						<span id='middle_pct'></span>%
+					</span>
+					have 1-2 adaptive mindsets.
+				</h3>
+				<h3>
+					<span class="chart bottom">
+						<span id='bottom_pct'></span>%
+					</span>
+				 	have no adaptive mindsets.
+				</h3>
+				<a class="action-button" href="/share/dlmooc">← Reset Survey</a><br>
+			</div>
+
+		</div>
+	</div>
+
+	<hr>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-8">
+				<div class="static-page-section">
+
+					<h2>About the Mindsets</h2>
+
+					<hr>
+					<div class="mindset-category">
+						<img src="//www.perts.net/static/images/belonging.jpg"/>
+						<h3>Belonging</h3>
+						<p>
+							Students who feel like they are a part of their school or classroom see school as a place where people like them can succeed. In turn, they are more engaged and invest more in their own learning.
+						</p>
+						<h4><span id="belong_good"></span>%
+							of surveyed students felt secure in their belonging.
+						</h4>
+					</div>
+
+					<div class="mindset-category">
+						<img src="//www.perts.net/static/images/raising_hands.jpg"/>
+						<h3>Growth Mindset</h3>
+						<p>
+							Students who believe that intelligence can be developed believe that learning and effort are the keys to success. Because they understand that developing their intelligence requires hard work, they welcome challenges as opportunities to learn and perform better in challenging academic environments. Learn more by watching Eduardo Briceño’s TEDx talk "<a href="http://youtu.be/pN34FNbOKXc">The Power of Belief – Mindset and Success.</a>"
+						</p>
+						<h4><span id="toi_good"></span>%
+							of surveyed students have a growth mindset.
+						</h4>
+					</div>
+
+					<div class="mindset-category">
+						<img src="//www.perts.net/static/images/student_laptop.png"/>
+						<h3>Self-efficacy</h3>
+						<p>
+							Students are more likely to engage in tasks that they feel confident they can succeed at, and they persevere longer on those tasks than students who do not feel confident in their ability to succeed.
+						</p>
+						<h4><span id="seff_good"></span>%
+							of surveyed students felt very confident of their ability to do well.
+						</h4>
+					</div>
+
+					<div class="mindset-category">
+						<img src="//www.perts.net/static/images/teacher.jpg"/>
+						<h3>Relevance/Purpose</h3>
+						<p>
+							Students who understand how content relates to things they care about (relevance) and how school can help them reach their personally meaningful goals (purpose) are more interested in learning and are able to maintain motivation in the face of setbacks.
+						</p>
+						<h4><span id="rel_good"></span>%
+							of surveyed students felt like their schoolwork is self-relevant.
+						</h4>
+					</div>
+
+				</div><!-- .static-page-section -->
+			</div><!-- .col-sm-8 -->
+
+			<div class="col-sm-4 col-md-3 col-md-offset-1">
+
+				{% include '_resources.html' %}
+
+			</div><!-- end col-sm -->
+		</div><!-- end row -->
+
+		<hr>
+
+		<div class="row">
+			<div class="col-sm-8">
+				<div class="static-page-section">
+					<h2>Help us improve!</h2>
+					<p>
+						We are working hard to improve the Mindset Meter. If anything was not perfect, tell us so we can make it better! If you loved it, tell us what you liked so we don't change it in future versions!
+						<br/></br/>
+						- Dave Paunesku and the PERTS team
+					</p>
+					<div class="email_feedback_form">
+						<form id="email">
+						  <input id="reply_to" placeholder="Your email address here (optional)" >
+							<textarea id="message" placeholder="Your thoughts"></textarea>
+						  <a onmousedown="$('#email').submit();" type='submit' class='action-button' >Send your feedback</a>
+						</form>
+					</div>
+				</div>
+
+				<div class="static-page-section">
+				  <h2>Sponsors</h2>
+			   	<p>
+			   		Free use of the Mindset Meter is generously supported by the William and Flora Hewlett Foundation and the Raikes Foundation.
+			    </p>
+					<br><br>
+					<a href="//raikesfoundation.org/"><img src="/static/raikes_logo.png" /></a>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<a href="//www.hewlett.org/"><img src="/static/hewlett.png" /></a>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
+
+
+<style type='text/css'>
+	.chart {
+		font-size: 1.4em;
+	}
+
+	.chart.top{
+		color: #33CC33;
+	}
+
+	.chart.middle{
+		color: #FF9933;
+	}
+
+	.chart.bottom{
+		color: #CC3300;
+	}
+
+	.legend {
+	    width: 100%;
+	}
+
+	.legend .title {
+	    display: block;
+	    margin: 0.5em;
+	    border-style: solid;
+	    border-width: 0 0 0 1em;
+	    padding: 0 0.3em;
+	}
+</style>
+
+<script type='text/javascript'>
+
+function vamp() {
+	if (typeof document.getElementById("gmsChart").getContext === 'function') {
+		mm.calculateProportions();
+		renderToiPieChart(mm.proportions['adaptive_mindsets'], mm.graphData['adaptive_mindsets']);
+		// fill in the percent of students that have a growth mindset
+		$('#top_pct').html(mm.proportions['adaptive_mindsets']['3-4']);
+		$('#middle_pct').html(mm.proportions['adaptive_mindsets']['1-2']);
+		$('#bottom_pct').html(mm.proportions['adaptive_mindsets']['0']);
+		// fill in the number of students that have taken the survey
+		$('.number_of_students').html(mm.answers.length);
+
+		// fill out specific mindsets
+		$('#belong_good').html(mm.proportions['belong']['secure']);
+		$('#toi_good').html(mm.proportions['toi']['growth']);
+		$('#seff_good').html(mm.proportions['seff']['capable']);
+		$('#rel_good').html(mm.proportions['rel']['relevant']);
+
+	} else {
+		// Have to give excanvas.js time to work its magic
+		setTimeout(vamp, 200);
+	}
+}
+
+ $(document).ready(vamp);
+
+</script>
+
+
+ <!-- Google Code for Looked at results Conversion Page -->
+<script type="text/javascript">
+/* <![CDATA[ */
+var google_conversion_id = 1008646530;
+var google_conversion_language = "en";
+var google_conversion_format = "3";
+var google_conversion_color = "ffffff";
+var google_conversion_label = "7QA2COaUqAQQgvP64AM";
+var google_conversion_value = 5;
+/* ]]> */
+</script>
+<script type="text/javascript" src="http://www.googleadservices.com/pagead/conversion.js">
+</script>
+<noscript>
+<div style="display:inline;">
+<img height="1" width="1" style="border-style:none;" alt="" src="http://www.googleadservices.com/pagead/conversion/1008646530/?value=5&amp;label=7QA2COaUqAQQgvP64AM&amp;guid=ON&amp;script=0"/>
+</div>
+</noscript>
+
+
+{% endblock %}
+
